@@ -1,10 +1,15 @@
+from django.db.models import Q
+from customer.models import Vendor
 def limit_off(model, request, serial):
         query_params = request.query_params
         id = query_params['id'] if query_params.get('id') else False
         limit = query_params['limit'] if query_params.get('limit') else False
         offset  = query_params['offset'] if query_params.get('offset')  else False
+        search = query_params['search'] if query_params.get('search')  else False
         if id:
             query = model.objects.filter(id=id)
+        elif search:
+            query = search_func(search)
         elif limit and offset:
             query = model.objects.all()[int(offset):int(limit)+int(offset)]
         elif limit or offset:
@@ -16,3 +21,6 @@ def limit_off(model, request, serial):
             query = model.objects.all()
         serializer = serial(query, many=True)
         return serializer.data
+def search_func(data):
+    queryObj = Vendor.objects.filter(Q(company_name__contains = data ) | Q(address__contains = data))
+    return queryObj
