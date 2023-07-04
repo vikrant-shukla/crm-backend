@@ -1,10 +1,12 @@
+from io import BytesIO
 import random
 from django.http import HttpResponse
+import openpyxl
 from rest_framework.response import Response
 from mysite import settings
-from customer.models import  Language, Otp,Representatives,UserTable, Vendor,Candidate,Jobdescription
+from customer.models import  Followup, Language, Otp,Representatives, Selected,UserTable, Vendor,Candidate,Jobdescription
 from customer.utils import limit_off
-from .serializers import LanguageSerializer, UserTableSerializer,OtpVerificationSerializer,JobdescriptionSerializer, VendorSerializer,CandidateSerializer, RepresentativesSerializer,AuthTokenSerializer,SetNewPasswordSerializer
+from .serializers import FollowupSerializer, LanguageSerializer, SelectedSerializer, UserTableSerializer,OtpVerificationSerializer,JobdescriptionSerializer, VendorSerializer,CandidateSerializer, RepresentativesSerializer,AuthTokenSerializer,SetNewPasswordSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -13,7 +15,8 @@ from datetime import datetime,timedelta
 from django.core.mail import send_mail
 from rest_framework import generics
 from rest_framework.generics import UpdateAPIView
-
+from openpyxl.utils import get_column_letter
+from django.contrib.auth.hashers import make_password
 from customer import serializers
 
 class RegisterAPI(APIView):
@@ -79,7 +82,7 @@ class ResetPasswordview(generics.UpdateAPIView):
         
 
 class VendorAPIView(APIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         serializers = limit_off(Vendor,request, VendorSerializer)
         return Response(serializers, status=status.HTTP_200_OK)
@@ -91,26 +94,20 @@ class VendorAPIView(APIView):
             return Response(serializers.data,status= 201)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    # def patch(self,request):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=True)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return Response(serializer.data)
-        
-    #     vendor_obj= data.get("company_name",'company_name')
-    #     vendor_obj= data.get("address",'address')
-    #     vendor_obj= data.get("company_name",'Followup_duration')
-    #     vendor_obj= data.get("company_name",'nda')
-    #     vendor_obj= data.get("company_name",'nda_reason')
-    #     vendor_obj= data.get("company_name",'nda_attach')
-    #     vendor_obj= data.get("company_name",'followup')
-    #     vendor_obj= data.get("company_name",'next_followup')
-    #     vendor_obj= data.get("company_name",'followup_reason')
-        
-    #     vendor_obj.save()
-    #     serializer = VendorSerializer(vendor_obj)
-    #     return Response(serializer.data,status= 201)
+    def patch(self, request):
+        # query_parameter = request.query_params
+        # data = query_parameter[id]
+        query_parameter = Vendor.objects.get(id =request.query_params['id'] )
+        data = request.data
+        for key, data_value in data.items(): 
+            query_parameter.__dict__[key] = data_value
+                
+        query_parameter.save()
+        serializers = VendorSerializer(query_parameter)
+        # if serializers.is_valid():
+        #     serializers.save()
+        return Response(serializers.data,status= 201)
+        # return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class RepresentativesAPIView(UpdateAPIView):
     queryset= Representatives.objects.all
@@ -143,28 +140,18 @@ class RepresentativesAPIView(UpdateAPIView):
     def patch(self, request):
         # query_parameter = request.query_params
         # data = query_parameter[id]
-        query_parameter = Representatives.objects.get()
+        query_parameter = Representatives.objects.get(id =request.query_params['id'] )
         data = request.data
-        
-        query_parameter.firstname = data["firstname"]
-        query_parameter.lastname = data["lastname"]
-        query_parameter.email = data["email"]
-        query_parameter.contact_no = data["contact_no"]
-        
+        for key, data_value in data.items(): 
+            query_parameter.__dict__[key] = data_value
+                
         query_parameter.save()
         serializers = RepresentativesSerializer(query_parameter)
         # if serializers.is_valid():
         #     serializers.save()
         return Response(serializers.data,status= 201)
         # return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
-            
-
-        # if data:
-        #     query = Representatives.objects.filter(id=query_parameter['id'])
-        # else:
-        #     query = Representatives.objects.all()
-        # serializer = RepresentativesSerializer(query, many=True)
-        # return Response({'message': serializer.data}, status=status.HTTP_200_OK)
+                 
     
 class LanguageAPIView(UpdateAPIView):
     
@@ -207,3 +194,49 @@ class JobdescriptionAPIView(UpdateAPIView):
             serializers.save()
             return Response(serializers.data,status= 201)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+
+class SelectedAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request):
+        serializers = limit_off(Selected,request, SelectedSerializer)
+        return Response(serializers, status=status.HTTP_200_OK)
+    def post(self,request):
+        serializers = SelectedSerializer(data = request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data,status= 201)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FollowupAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request):
+        serializers = limit_off(Followup,request, FollowupSerializer)
+        return Response(serializers, status=status.HTTP_200_OK)
+    def post(self,request):
+        serializers = FollowupSerializer(data = request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data,status= 201)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class exportUsersCsv(APIView):
+    def get(self, request):
+        try:
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            headers = ['Email']
+            for col_num, header in enumerate(headers, 1):
+                col_letter = get_column_letter(col_num)
+                sheet[f"{col_letter}1"] = header
+            emails = eval(request.query_params.get("email"))
+            for row_num, email in enumerate(emails,2):
+                sheet[f"A{row_num}"] = email
+            buffer = BytesIO()
+            workbook.save(buffer)
+            buffer.seek(0)
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="BitSquadEmployeeAttendanceData.xlsx"'
+            response.write(buffer.getvalue())
+            return response
+        except:
+            return Response({"status": "An error ocured. Try again!!!"}, status=status.HTTP_400_BAD_REQUEST)

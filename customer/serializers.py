@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from customer.models import  Candidate, Jobdescription, Language, Otp, UserTable, Representatives, Vendor
+from customer.models import  Candidate, Followup, Jobdescription, Language, Otp, Selected, UserTable, Representatives, Vendor
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import re
+
 
 class UserTableSerializer(serializers.ModelSerializer):
     class Meta:
@@ -126,6 +127,26 @@ class JobdescriptionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['jd'] = LanguageSerializer(instance.jd).data
+        return response
+    
+class  SelectedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selected
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['follow_up'] = FollowupSerializer(instance.follow_up).data
+        return response
+        
+class  FollowupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Followup
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['job_description'] = JobdescriptionSerializer(instance.job_description).data
         return response
     
         

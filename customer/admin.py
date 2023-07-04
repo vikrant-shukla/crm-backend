@@ -8,4 +8,5 @@ admin.site.register(Candidate)
 admin.site.register(UserTable)
 admin.site.register(Otp)
 admin.site.register(Jobdescription)
-
+admin.site.register(Followup)
+admin.site.register(Selected )
