@@ -79,10 +79,10 @@ User_choices = (
 class Followup(models.Model):
     job_description=models.ForeignKey(Jobdescription,on_delete=models.CASCADE)
     choices=models.CharField(max_length=20,choices=User_choices, default="selected")
+    
     def __str__(self):
         return str(self.job_description)
-    
-    
+        
 User_choices = (
     ("yes", "yes"),
     ("no", "no"),    
