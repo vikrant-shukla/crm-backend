@@ -26,13 +26,13 @@ User_choices = (
 class Vendor(models.Model):
     company_name = models.CharField(max_length=200, blank = True,null = True)
     address = models.CharField(max_length=300,blank = True, null = True)
-    Followup_duration : models.CharField(max_length=200, blank = True,null = True)
     nda = models.CharField(max_length=20, choices=User_choices, default="yes")
     nda_reason = models.CharField(max_length=20, choices=User_choices, default="yes")
     nda_attach = models.FileField(upload_to="files", blank=True, null=True)
-    followup = models.CharField(max_length=20, blank = True,null = True)
-    next_followup = models.CharField(max_length=200, blank = True,null = True)
+    followup = models.DateField( blank = True,null = True)
+    next_followup = models.DateField( blank = True,null = True)
     followup_reason = models.CharField(max_length=200, blank = True,null = True)
+    Followup_duration = models.CharField(max_length=200, blank = True,null = True)
 
 
     def __str__(self):
@@ -66,7 +66,39 @@ class Jobdescription(models.Model):
     description = models.CharField(max_length=100)
    
     def __str__(self):
-        return str(self.language)
+        return str(self.description)
+    
+User_choices = (
+    ("reject", "reject"),
+    ("shortlist", "shortlist"),
+    ("screening", "screening"),
+    ("selected", "selected"),
+    
+)    
+    
+class Followup(models.Model):
+    job_description=models.ForeignKey(Jobdescription,on_delete=models.CASCADE)
+    choices=models.CharField(max_length=20,choices=User_choices, default="selected")
+    def __str__(self):
+        return str(self.job_description)
+    
+    
+User_choices = (
+    ("yes", "yes"),
+    ("no", "no"),    
+)
+
+class Selected(models.Model):
+    follow_up=models.ForeignKey(Followup,on_delete=models.CASCADE)
+    project_name=models.CharField(max_length=200)
+    DOJ=models.DateField()
+    project_duration=models.CharField(max_length=20)
+    project_end_date=models.DateField()
+    working_person=models.CharField(max_length=20)
+    extend_status=models.CharField(max_length=20,choices=User_choices)
+    extend_period=models.CharField(max_length=20)
+    def __str__(self):
+        return str(self.project_name)
 
 class Otp(models.Model):
     email = models.ForeignKey(UserTable, on_delete=models.CASCADE)
