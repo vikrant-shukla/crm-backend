@@ -108,11 +108,21 @@ class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Language
         fields = '__all__'
+    
+    def validate(self, attrs):
+        if not re.match(r'^[a-zA-Z+]*$', attrs.get("language")):
+            raise serializers.ValidationError("Enter valid language name!!!")
+        return super().validate(attrs)
         
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = '__all__'
+    
+    def validate(self, attrs):
+        if not re.match(r'^[a-zA-Z]*$', attrs.get("Candidatename")):
+            raise serializers.ValidationError("Enter valid  name!!!")
+        return super().validate(attrs)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -126,8 +136,25 @@ class JobdescriptionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['jd'] = LanguageSerializer(instance.jd).data
+        response['jd'] = CandidateSerializer(instance.jd).data
         return response
+    
+    # def update(self, instance, validated_data):
+    #     instance.Candidatename = validated_data.get('Candidatename', instance.Candidatename)
+    #     instance.language.language = validated_data.get('language', instance.language)
+    #     instance.save()
+
+    #     # up till here everything is updating, however the problem appears here.
+    #     # I don't know how to get the right InvoiceItem object, because in the validated
+    #     # data I get the items queryset, but without an id.
+
+    #     items = validated_data.get('items')
+    #     for item in items:
+    #         inv_item = Jobdescription.objects.get(id=1,  jd=instance)
+    #         inv_item.description = item.get('description', inv_item.description)
+    #         inv_item.status = item.get('status', inv_item.status)
+    #         inv_item.save()
+    #     return instance
     
 class  SelectedSerializer(serializers.ModelSerializer):
     class Meta:
