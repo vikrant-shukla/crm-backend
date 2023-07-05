@@ -95,64 +95,43 @@ class VendorAPIView(APIView):
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request):
-        # query_parameter = request.query_params
-        # data = query_parameter[id]
-        query_parameter = Vendor.objects.get(id =request.query_params['id'] )
-        data = request.data
-        for key, data_value in data.items(): 
-            query_parameter.__dict__[key] = data_value
-                
-        query_parameter.save()
-        serializers = VendorSerializer(query_parameter)
-        # if serializers.is_valid():
-        #     serializers.save()
-        return Response(serializers.data,status= 201)
-        # return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:
+            query_parameter = Vendor.objects.get(id =request.query_params['id'] )
+            data = request.data
+            for key, data_value in data.items(): 
+                query_parameter.__dict__[key] = data_value
+            serializers = VendorSerializer(query_parameter)
+            return Response(serializers.data,status= status.HTTP_201_CREATED)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class RepresentativesAPIView(UpdateAPIView):
-    queryset= Representatives.objects.all
-    
+    # queryset= Representatives.objects.all()
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        serializers = limit_off(Representatives,request, RepresentativesSerializer)
+        serializers = limit_off(model=Representatives,request=request, serial=RepresentativesSerializer)
         return Response(serializers, status=status.HTTP_200_OK)
     
     def post(self,request):
         serializers = RepresentativesSerializer(data = request.data)
         if serializers.is_valid():
             serializers.save()
-            return Response(serializers.data,status= 201)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
-    # def patch(self, request, pk):
-    #     note = self.get_note(pk)
-    #     if note == None:
-    #         return Response({"status": "fail", "message": f"Note with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    #     serializer = self.serializer_class(
-    #         note, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.validated_data['updatedAt'] 
-    #         serializer.save()
-    #         return Response({"status": "success", "data": {"note": serializer.data}})
-    #     return Response({"status": "fail", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    
     def patch(self, request):
-        # query_parameter = request.query_params
-        # data = query_parameter[id]
-        query_parameter = Representatives.objects.get(id =request.query_params['id'] )
-        data = request.data
-        for key, data_value in data.items(): 
-            query_parameter.__dict__[key] = data_value
-                
-        query_parameter.save()
-        serializers = RepresentativesSerializer(query_parameter)
-        # if serializers.is_valid():
-        #     serializers.save()
-        return Response(serializers.data,status= 201)
-        # return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:
+            query_parameter = Representatives.objects.get(id =request.query_params['id'] )
+            data = request.data
+            for key, data_value in data.items(): 
+                query_parameter.__dict__[key] = data_value
+                    
+            query_parameter.save()
+            serializers = RepresentativesSerializer(query_parameter)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
                  
-    
 class LanguageAPIView(UpdateAPIView):
     
     permission_classes = (IsAuthenticated,)
@@ -161,10 +140,12 @@ class LanguageAPIView(UpdateAPIView):
         return Response(serializers, status=status.HTTP_200_OK)
     
     def post(self,request):
+        if Language.objects.filter(language =  request.data['language'].lower()).exists():
+            return Response({"message":"language already exists"},status=  status.HTTP_400_BAD_REQUEST)
         serializers = LanguageSerializer(data = request.data)
         if serializers.is_valid():
             serializers.save()
-            return Response(serializers.data,status= 201)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
 class CandidateAPIView(UpdateAPIView):    
@@ -178,7 +159,7 @@ class CandidateAPIView(UpdateAPIView):
         serializers = CandidateSerializer(data = request.data)
         if serializers.is_valid():
             serializers.save()
-            return Response(serializers.data,status= 201)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
 class JobdescriptionAPIView(UpdateAPIView):    
@@ -194,6 +175,9 @@ class JobdescriptionAPIView(UpdateAPIView):
             serializers.save()
             return Response(serializers.data,status= 201)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        pass
 
 class SelectedAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -225,13 +209,19 @@ class exportUsersCsv(APIView):
         try:
             workbook = openpyxl.Workbook()
             sheet = workbook.active
-            headers = ['Email']
+            headers = ['Company Name', 'Representative Name','Email']
             for col_num, header in enumerate(headers, 1):
                 col_letter = get_column_letter(col_num)
                 sheet[f"{col_letter}1"] = header
-            emails = eval(request.query_params.get("email"))
+            emails = request.query_params.get("email").split(",") 
+            company = request.query_params.get("company").split(",")
+            Representative = request.query_params.get("representative").split(",")
+            init=0
             for row_num, email in enumerate(emails,2):
-                sheet[f"A{row_num}"] = email
+                sheet[f"A{row_num}"] = company[init]
+                sheet[f"B{row_num}"] = Representative[init]
+                sheet[f"C{row_num}"] = email
+                init+=1
             buffer = BytesIO()
             workbook.save(buffer)
             buffer.seek(0)

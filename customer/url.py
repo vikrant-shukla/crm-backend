@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview
+from .views import CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview, exportUsersCsv
 
 
 urlpatterns = [
@@ -16,4 +16,5 @@ urlpatterns = [
     path('jobdescription', JobdescriptionAPIView.as_view(), name='jobdescription'),
     path('followup', FollowupAPIView.as_view(), name='followup'),
     path('selected', SelectedAPIView.as_view(), name='selected'),
+    path('exportcsv', exportUsersCsv.as_view(), name='selected'),
 ]
