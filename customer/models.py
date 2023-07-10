@@ -61,22 +61,22 @@ class Candidate(models.Model):
     def __str__(self):
         return str(self.Candidatename)
 
+class Followup(models.Model):
+    
+    status = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return str(self.status)
+
 class Jobdescription(models.Model):
     jd = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100,  blank=True, null=True)
+    status=models.ForeignKey(Followup,on_delete=models.CASCADE, blank=True, null=True)
    
     def __str__(self):
         return str(self.description)
     
-    
-    
-class Followup(models.Model):
-    job_description=models.ForeignKey(Jobdescription,on_delete=models.CASCADE)
-    status = models.CharField(max_length=20)
-    
-    def __str__(self):
-        return str(self.job_description)
-        
+
 User_choices = (
     ("yes", "yes"),
     ("no", "no"),    
