@@ -9,11 +9,9 @@ from customer.utils import limit_off
 from .serializers import FollowupSerializer, LanguageSerializer, SelectedSerializer, UserTableSerializer,OtpVerificationSerializer,JobdescriptionSerializer, VendorSerializer,CandidateSerializer, RepresentativesSerializer,AuthTokenSerializer,SetNewPasswordSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from datetime import datetime,timedelta
 from django.core.mail import send_mail
-from rest_framework import generics
 from rest_framework.generics import UpdateAPIView
 from openpyxl.utils import get_column_letter
 from django.contrib.auth.hashers import make_password
@@ -80,7 +78,6 @@ class ResetPasswordview(generics.UpdateAPIView):
                 return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
             return Response({"status": "password successfully changed!!!"}, status=status.HTTP_400_BAD_REQUEST)
         
-
 class VendorAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):
@@ -162,6 +159,23 @@ class CandidateAPIView(UpdateAPIView):
             return Response(serializers.data,status=  status.HTTP_201_CREATED)
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
+    def patch(self, request):
+        try:
+            query_parameter = Candidate.objects.get(id =request.query_params['id'] )
+            query_parameter_l = Language.objects.get(id =request.query_params['id1'] )
+            data = request.data
+            for key, data_value in data.items(): 
+                query_parameter.__dict__[key] = data_value
+                query_parameter_l.__dict__[key] = data_value
+                    
+            query_parameter.save()
+            query_parameter_l.save()
+            serializers = CandidateSerializer(query_parameter)
+            serializers = LanguageSerializer(query_parameter_l)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+    
 class JobdescriptionAPIView(UpdateAPIView):    
     permission_classes = (IsAuthenticated,)
     
@@ -177,7 +191,21 @@ class JobdescriptionAPIView(UpdateAPIView):
         return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
-        pass
+        try:
+            query_parameter = Jobdescription.objects.get(id =request.query_params['id'] )
+            query_parameter_l = Candidate.objects.get(id =request.query_params['id1'] )
+            data = request.data
+            for key, data_value in data.items(): 
+                query_parameter.__dict__[key] = data_value
+                query_parameter_l.__dict__[key] = data_value
+                    
+            query_parameter.save()
+            query_parameter_l.save()
+            serializers = JobdescriptionSerializer(query_parameter)
+            serializers = CandidateSerializer(query_parameter_l)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class SelectedAPIView(APIView):
     permission_classes = (IsAuthenticated,)
