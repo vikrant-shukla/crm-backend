@@ -27,7 +27,7 @@ class Vendor(models.Model):
     company_name = models.CharField(max_length=200, blank = True,null = True)
     address = models.CharField(max_length=300,blank = True, null = True)
     nda = models.CharField(max_length=20, choices=User_choices, default="yes")
-    nda_reason = models.CharField(max_length=20, choices=User_choices,blank = True, null = True)
+    nda_reason = models.CharField(max_length=20, blank = True, null = True)
     nda_attach = models.FileField(upload_to="files", blank=True, null=True)
     previous_followup = models.DateField( blank = True,null = True)
     next_followup = models.DateField( blank = True,null = True)
@@ -59,27 +59,20 @@ class Candidate(models.Model):
     Candidatename = models.CharField(max_length=100)
    
     def __str__(self):
-        return str(self.language)
+        return str(self.Candidatename)
 
 class Jobdescription(models.Model):
     jd = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100,  blank=True, null=True)
-    status = models.CharField(max_length=100, blank=True, null=True)
    
     def __str__(self):
         return str(self.description)
     
-User_choices = (
-    ("reject", "reject"),
-    ("shortlist", "shortlist"),
-    ("screening", "screening"),
-    ("selected", "selected"),
     
-)    
     
 class Followup(models.Model):
     job_description=models.ForeignKey(Jobdescription,on_delete=models.CASCADE)
-    choices=models.CharField(max_length=20,choices=User_choices, default="selected")
+    status = models.CharField(max_length=20)
     
     def __str__(self):
         return str(self.job_description)
