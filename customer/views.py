@@ -212,12 +212,24 @@ class SelectedAPIView(APIView):
     def get(self,request):
         serializers = limit_off(Selected,request, SelectedSerializer)
         return Response(serializers, status=status.HTTP_200_OK)
+    
     def post(self,request):
         serializers = SelectedSerializer(data = request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data,status= 201)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# class SelectedCandidateAPIView(APIView):
+#     permission_classes = (IsAuthenticated,)
+#     def get(self,request):        
+#         query= Jobdescription.objects.all
+#         name = self.request.query_params.get('username','status')
+#         # query.save()            
+#         queryset = queryset.filter(username=username)
+                    
+#         serializers = limit_off(Selected,request, SelectedSerializer)
+#         return Response(serializers, status=status.HTTP_200_OK)
 
 class FollowupAPIView(APIView):
     permission_classes = (IsAuthenticated,)

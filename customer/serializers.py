@@ -103,15 +103,15 @@ class RepresentativesSerializer(serializers.ModelSerializer):
         firstname=data.get('firstname')
         lastname=data.get('lastname')
         email=data.get('email')
-        contact_no=data.get('contact_no')       
+        # contact_no=data.get('contact_no')       
         if not re.match(r'^[A-Za-z]{1,30}$', firstname):
             raise serializers.ValidationError("enter valid name")
         if not re.match(r'^[A-Za-z]{1,30}$', lastname):
             raise serializers.ValidationError("enter valid name")
         if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', email):
             raise serializers.ValidationError('Enter a correct email.')
-        if not contact_no.isdigit() or len(contact_no)>=10 or int(contact_no[0])<6:
-            raise serializers.ValidationError('Enter a valid mob.no.')
+        # if not contact_no.isdigit() or len(contact_no)>=10 or int(contact_no[0])<6:
+        #     raise serializers.ValidationError('Enter a valid mob.no.')
                         
         return data
     
@@ -144,6 +144,11 @@ class CandidateSerializer(serializers.ModelSerializer):
         response['language'] = LanguageSerializer(instance.language).data
         return response
     
+class  FollowupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Followup
+        fields = '__all__'
+
 class JobdescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Jobdescription
@@ -151,7 +156,8 @@ class JobdescriptionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['jd'] = CandidateSerializer(instance.jd).data
+        response['candidate'] = CandidateSerializer(instance.candidate).data
+        response['status'] = FollowupSerializer(instance.status).data
         return response
     
     def validate(self,data):
@@ -180,25 +186,18 @@ class JobdescriptionSerializer(serializers.ModelSerializer):
     #         inv_item.save()
     #     return instance
     
-class  FollowupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Followup
-        fields = '__all__'
+
         
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['job_description'] = JobdescriptionSerializer(instance.job_description).data
-        return response
-        
+            
 class  SelectedSerializer(serializers.ModelSerializer):
-    choice = FollowupSerializer(many=True)
+    # shows = JobdescriptionSerializer(read_only=True, many=False)
     class Meta:
         model = Selected
         fields = '__all__'
         
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['follow_up'] = FollowupSerializer(instance.follow_up).data
+        response['candiadte_details'] = JobdescriptionSerializer(instance.candidate_details).data
         return response
     
     def validate(self,data):
@@ -209,13 +208,13 @@ class  SelectedSerializer(serializers.ModelSerializer):
         extend_period=data.get('extend_period')
         if not re.match(r'^[A-Za-z]{1,30}$', project_name):
             raise serializers.ValidationError("enter correct name")
-        if not re.match(r'^[A-Za-z]{1,30}$', project_duration):
+        if not re.match(r'^[A-Za-z0-9]{1,30}$', project_duration):
             raise serializers.ValidationError("enter correct duration")
         if not re.match(r'^[A-Za-z]{1,30}$', working_person):
             raise serializers.ValidationError("enter valid name")
         if not re.match(r'^[A-Za-z]{1,30}$', extend_status):
             raise serializers.ValidationError("enter correct status")
-        if not re.match(r'^[A-Za-z]{1,30}$', extend_period):
+        if not re.match(r'^[A-Za-z0-9]{1,30}$', extend_period):
             raise serializers.ValidationError("enter valid period")
         
         return data

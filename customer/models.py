@@ -69,7 +69,7 @@ class Followup(models.Model):
         return str(self.status)
 
 class Jobdescription(models.Model):
-    jd = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True)
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100,  blank=True, null=True)
     status=models.ForeignKey(Followup,on_delete=models.CASCADE, blank=True, null=True)
    
@@ -83,14 +83,14 @@ User_choices = (
 )
 
 class Selected(models.Model):
-    follow_up=models.ForeignKey(Followup,on_delete=models.CASCADE)
+    candidate_details=models.ForeignKey(Jobdescription,on_delete=models.CASCADE)
     project_name=models.CharField(max_length=200)
     DOJ=models.DateField()
     project_duration=models.CharField(max_length=20)
     project_end_date=models.DateField()
-    working_person=models.CharField(max_length=20)
-    extend_status=models.CharField(max_length=20,choices=User_choices)
-    extend_period=models.CharField(max_length=20)
+    working_person=models.CharField(max_length=20,null=True,blank=True)
+    extend_status=models.CharField(max_length=20,choices=User_choices,default="no")
+    extend_period=models.CharField(max_length=20,null=True,blank=True)
     def __str__(self):
         return str(self.project_name)
 
