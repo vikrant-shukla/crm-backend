@@ -1,4 +1,5 @@
 from io import BytesIO
+import json
 import random
 from django.http import HttpResponse
 import openpyxl
@@ -220,16 +221,14 @@ class SelectedAPIView(APIView):
             return Response(serializers.data,status= 201)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# class SelectedCandidateAPIView(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     def get(self,request):        
-#         query= Jobdescription.objects.all
-#         name = self.request.query_params.get('username','status')
-#         # query.save()            
-#         queryset = queryset.filter(username=username)
-                    
-#         serializers = limit_off(Selected,request, SelectedSerializer)
-#         return Response(serializers, status=status.HTTP_200_OK)
+class SelectedCandidateAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request):        
+        query= Jobdescription.objects.filter(status__status = "selected")
+        list_name = []
+        for name in query:
+            list_name.append({int(name.id): name.candidate.Candidatename})
+        return Response({"selected_candidates":list_name}, status=status.HTTP_200_OK)
 
 class FollowupAPIView(APIView):
     permission_classes = (IsAuthenticated,)

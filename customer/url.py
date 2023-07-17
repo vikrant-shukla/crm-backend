@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, SelectedCandidateAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview, exportUsersCsv
+from .views import SelectedCandidateAPIView, CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview, exportUsersCsv
 
 
 urlpatterns = [
