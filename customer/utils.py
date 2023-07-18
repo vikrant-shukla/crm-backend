@@ -1,5 +1,5 @@
 from django.db.models import Q
-from customer.models import Representatives, Vendor
+from customer.models import Representatives, Vendor,Language
 def limit_off(model, request, serial):
         query_params = request.query_params
         id = query_params['id'] if query_params.get('id') else False
@@ -28,5 +28,6 @@ def search_func(data, model):
         queryObj = model.objects.filter(Q(firstname__contains = data ) | Q(lastname__contains = data) | Q(email__contains = data ) | Q(contact_no__contains = data))
     if model._meta.object_name == "Selected":
         queryObj = model.objects.filter(Q(project_name__contains = data ) | Q(project_duration_contains = data) | Q(working_person__contains = data ) | Q(extend_status__contains = data))
-    
+    if model._meta.object_name == "Language":
+        queryObj = model.objects.filter(Q(language__contains = data ) )
     return queryObj

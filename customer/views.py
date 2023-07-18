@@ -226,8 +226,8 @@ class SelectedCandidateAPIView(APIView):
     def get(self,request):        
         query= Jobdescription.objects.filter(status__status = "selected")
         list_name = []
-        for name in query:
-            list_name.append({int(name.id): name.candidate.Candidatename})
+        for data in query:
+            list_name.append({"key":int(data.id),"value": data.candidate.Candidatename})
         return Response({"selected_candidates":list_name}, status=status.HTTP_200_OK)
 
 class FollowupAPIView(APIView):

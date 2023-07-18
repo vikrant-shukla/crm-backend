@@ -46,7 +46,7 @@ class Representatives(models.Model):
     contact_no = models.CharField(max_length=10)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.firstname)
     
 class Language(models.Model):
     language= models.CharField(max_length=100)  
