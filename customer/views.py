@@ -221,13 +221,26 @@ class SelectedAPIView(APIView):
             return Response(serializers.data,status= 201)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def patch(self, request):
+        try:
+            query_parameter = Selected.objects.get(id =request.query_params['id'] )
+            data = request.data
+            for key, data_value in data.items(): 
+                query_parameter.__dict__[key] = data_value
+                    
+            query_parameter.save()
+            serializers = SelectedSerializer(query_parameter)
+            return Response(serializers.data,status=  status.HTTP_201_CREATED)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+    
 class SelectedCandidateAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):        
         query= Jobdescription.objects.filter(status__status = "selected")
         list_name = []
-        for name in query:
-            list_name.append({int(name.id): name.candidate.Candidatename})
+        for data in query:
+            list_name.append({"key":int(data.id),"value": data.candidate.Candidatename})
         return Response({"selected_candidates":list_name}, status=status.HTTP_200_OK)
 
 class FollowupAPIView(APIView):
