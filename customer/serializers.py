@@ -83,7 +83,7 @@ class VendorSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Enter a valid address')
         if not re.match(r'^[A-Za-z]{1,100}$', nda_reason):
             raise serializers.ValidationError("reason must be character")
-        if not re.match(r'^[A-Za-z]{1,500}$', followup_reason):
+        if not re.match(r'^[A-Za-z  ]{1,500}$', followup_reason):
             raise serializers.ValidationError(" f reason must be character")
         if not re.match(r'^[A-Za-z0-9]{1,50}$', Followup_duration):
             raise serializers.ValidationError("fd reason must be character or number")
