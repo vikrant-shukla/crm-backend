@@ -98,6 +98,7 @@ class VendorAPIView(APIView):
             data = request.data
             for key, data_value in data.items(): 
                 query_parameter.__dict__[key] = data_value
+            query_parameter.save()
             serializers = VendorSerializer(query_parameter)
             return Response(serializers.data,status= status.HTTP_201_CREATED)
         except:
