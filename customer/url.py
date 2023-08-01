@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SelectedCandidateAPIView, CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview, exportUsersCsv
+from .views import DasinterviewAPIView, DaspendingAPIView, DasrejectAPIView, DasselectedAPIView, DasvendorAPIView, SelectedCandidateAPIView, CandidateAPIView, FollowupAPIView, JobdescriptionAPIView, LanguageAPIView, RegisterAPI,LoginAPI,RepresentativesAPIView, SelectedAPIView, VendorAPIView,SentMailView,OtpVerification,ResetPasswordview, exportUsersCsv
 
 
 urlpatterns = [
@@ -18,4 +18,12 @@ urlpatterns = [
     path('selected', SelectedAPIView.as_view(), name='selected'),
     path('selectedcandidate', SelectedCandidateAPIView.as_view(), name='selectedcandidate'),
     path('exportcsv', exportUsersCsv.as_view(), name='selected'),
+    path('dasvendor', DasvendorAPIView.as_view(), name='dasvendor'),
+    path('dasinterview', DasinterviewAPIView.as_view(), name='dasinterview'),
+    path('dasselected', DasselectedAPIView.as_view(), name='dasselected'),
+    path('dasrejected', DasrejectAPIView.as_view(), name='dasrejected'),
+    path('daspending', DaspendingAPIView.as_view(), name='daspending'),
+
+
+
 ]
