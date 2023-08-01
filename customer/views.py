@@ -17,6 +17,8 @@ from rest_framework.generics import UpdateAPIView
 from openpyxl.utils import get_column_letter
 from django.contrib.auth.hashers import make_password
 from customer import serializers
+from django.db.models import Count
+
 
 class RegisterAPI(APIView):
     def post(self, request):
@@ -82,15 +84,20 @@ class ResetPasswordview(generics.UpdateAPIView):
 class VendorAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        serializers = limit_off(Vendor,request, VendorSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(Vendor,request, VendorSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
-        serializers = VendorSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status= 201)
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = VendorSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status= 201)
+        except:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request):
         try:
@@ -105,18 +112,23 @@ class VendorAPIView(APIView):
             return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class RepresentativesAPIView(UpdateAPIView):
-    # queryset= Representatives.objects.all()
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        serializers = limit_off(model=Representatives,request=request, serial=RepresentativesSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(model=Representatives,request=request, serial=RepresentativesSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
-        serializers = RepresentativesSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status=  status.HTTP_201_CREATED)
-        return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = RepresentativesSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status=  status.HTTP_201_CREATED)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request):
         try:
@@ -131,35 +143,46 @@ class RepresentativesAPIView(UpdateAPIView):
         except:
             return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
                  
-class LanguageAPIView(UpdateAPIView):
-    
+class LanguageAPIView(UpdateAPIView):    
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        serializers = limit_off(Language,request, LanguageSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(Language,request, LanguageSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
-        if Language.objects.filter(language =  request.data['language'].lower()).exists():
-            return Response({"message":"language already exists"},status=  status.HTTP_400_BAD_REQUEST)
-        serializers = LanguageSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status=  status.HTTP_201_CREATED)
-        return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:
+            if Language.objects.filter(language =  request.data['language'].lower()).exists():
+                return Response({"message":"language already exists"},status=  status.HTTP_400_BAD_REQUEST)
+            serializers = LanguageSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status=  status.HTTP_201_CREATED)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
 class CandidateAPIView(UpdateAPIView):    
     permission_classes = (IsAuthenticated,)
     
     def get(self,request):
-        serializers = limit_off(Candidate,request, CandidateSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(Candidate,request, CandidateSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
-        serializers = CandidateSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status=  status.HTTP_201_CREATED)
-        return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = CandidateSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status=  status.HTTP_201_CREATED)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request):
         try:
@@ -182,15 +205,21 @@ class JobdescriptionAPIView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     
     def get(self,request):
-        serializers = limit_off(Jobdescription,request, JobdescriptionSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(Jobdescription,request, JobdescriptionSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
     def post(self,request):
-        serializers = JobdescriptionSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status= 201)
-        return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = JobdescriptionSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status= 201)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         try:
@@ -211,16 +240,21 @@ class JobdescriptionAPIView(UpdateAPIView):
 
 class SelectedAPIView(APIView):
     permission_classes = (IsAuthenticated,)
-    def get(self,request):
-        serializers = limit_off(Selected,request, SelectedSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+    def get(self,request):        
+        try:            
+            serializers = limit_off(Selected,request, SelectedSerializer)
+        except:
+            return Response(serializers, status=status.HTTP_200_OK)
     
     def post(self,request):
-        serializers = SelectedSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status= 201)
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = SelectedSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status= 201)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request):
         try:
@@ -236,27 +270,86 @@ class SelectedAPIView(APIView):
             return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     
 class SelectedCandidateAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-    def get(self,request):        
-        query= Jobdescription.objects.filter(status__status = "selected")
-        list_name = []
-        for data in query:
-            list_name.append({"key":int(data.id),"value": data.candidate.Candidatename})
-        return Response({"selected_candidates":list_name}, status=status.HTTP_200_OK)
+    permission_classes = (IsAuthenticated,)    
+    def get(self,request):
+        try:              
+            query= Jobdescription.objects.filter(status__status = "selected")
+            list_name = []
+            for data in query:
+                list_name.append({"key":int(data.id),"value": data.candidate.Candidatename})
+            return Response({"selected_candidates":list_name}, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)            
 
 class FollowupAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        serializers = limit_off(Followup,request, FollowupSerializer)
-        return Response(serializers, status=status.HTTP_200_OK)
+        try:            
+            serializers = limit_off(Followup,request, FollowupSerializer)
+            return Response(serializers, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
     def post(self,request):
-        serializers = FollowupSerializer(data = request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status= 201)
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:            
+            serializers = FollowupSerializer(data = request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status= 201)
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+class DasvendorAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        try:            
+            queryset= Vendor.objects.prefetch_related().aggregate(count=Count('id'))
+            return Response({'Total_clients':queryset})
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        
+class DasinterviewAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        try:            
+            query= Jobdescription.objects.all().prefetch_related().aggregate(count=Count('id'))
+            query2= Jobdescription.objects.filter(status__status = "pending".lower()).prefetch_related().aggregate(count=Count('id'))
+            diff=query.get('count')-query2.get('count')
+            
+            return Response({"no_of_interview":diff}, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+    
+class DasselectedAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        try:            
+            query= Jobdescription.objects.filter(status__status = "Selected".lower()).prefetch_related().aggregate(count=Count('id'))
+            
+            return Response({"no_of_selected":query.get('count')}, status=status.HTTP_200_OK)
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        
+class DasrejectAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        try:            
+            query= Jobdescription.objects.filter(status__status = "Rejected".lower()).prefetch_related().aggregate(count=Count('id'))
+            
+            return Response({"no_of_rejected":query.get('count')}, status=status.HTTP_200_OK)  
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        
+class DaspendingAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        try:            
+            query= Jobdescription.objects.filter(status__status = "Pending".lower()).prefetch_related().aggregate(count=Count('id'))
+            
+            return Response({"no_of_pending":query.get('count')}, status=status.HTTP_200_OK)  
+        except:
+            return Response(serializers.errors,status = status.HTTP_400_BAD_REQUEST)
+        
 class exportUsersCsv(APIView):
     def get(self, request):
         try:
